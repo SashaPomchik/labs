@@ -23,6 +23,27 @@ jobs:
           distribution: 'temurin'
           java-version: '20'
 
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Start PostgreSQL using Docker Compose
+        run: docker-compose -f docker-compose.yml up -d
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          echo "Waiting for PostgreSQL to be ready..."
+          for i in {1..10}; do
+            if docker exec $(docker-compose ps -q postgres) pg_isready -U postgres; then
+              echo "PostgreSQL is ready!";
+              exit 0;
+            fi
+            sleep 5;
+          done
+          echo "PostgreSQL failed to become ready";
+          exit 1;
+
       # Start PostgreSQL service
       - name: Set up PostgreSQL
         uses: docker/setup-buildx-action@v2
