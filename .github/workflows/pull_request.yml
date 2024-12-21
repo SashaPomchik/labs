@@ -16,22 +16,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up JDK 20 (you can change to another version if needed)
+      # Set up JDK 20
       - name: Set up JDK 20
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '20'
 
+      # Install Docker Compose
       - name: Install Docker Compose
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      - name: Start PostgreSQL using Docker Compose
+      # Start PostgreSQL using Docker Compose
+      - name: Start PostgreSQL
         run: docker-compose -f docker-compose.yml up -d
 
-      - name: Wait for PostgreSQL to be ready
+      # Wait for PostgreSQL to be ready
+      - name: Wait for PostgreSQL
         run: |
           echo "Waiting for PostgreSQL to be ready..."
           for i in {1..10}; do
@@ -44,18 +47,6 @@ jobs:
           echo "PostgreSQL failed to become ready";
           exit 1;
 
-      # Start PostgreSQL service
-      - name: Set up PostgreSQL
-        uses: docker/setup-buildx-action@v2
-        with:
-          buildkitd-flags: --debug
-      - name: Run PostgreSQL container
-        uses: docker/compose-action@v3
-        with:
-          compose-file: docker-compose.yml
-      - name: Wait for PostgreSQL container ready, ensure running health
-        run: echo "postgreSQL CI" db logs ensuring path success completed make ensure response service Linked
-
       # Cache Gradle dependencies
       - name: Cache Gradle dependencies
         uses: actions/cache@v3
@@ -67,19 +58,17 @@ jobs:
           restore-keys: |
             gradle-
 
+      # Grant execute permission for Gradlew
       - name: Grant execute permission for Gradlew
         run: chmod +x ./gradlew
 
       # Run Gradle build and tests with coverage
-      - name: Build with Gradle
-        uses: gradle/gradle-build-action@v3
-        with:
-          cache-disabled: true
-          generate-job-summary: false
+      - name: Run Gradle Build and Tests
+        run: ./gradlew clean build jacocoTestReport
 
       # Upload the JaCoCo test coverage report
       - name: Upload coverage report
         uses: actions/upload-artifact@v3
         with:
           name: test-coverage-report
-          path: build/reports/coverage/index.html
+          path: build/reports/jacoco/test/html/index.html
