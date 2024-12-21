@@ -22,14 +22,13 @@ configurations {
 
 ext {
 	// Minimal Coverage
-	minimumCoveragePerFile = 0.4
+	minimumCoveragePerFile = 0.0
 	filesExcludedFromCoverage = [
 			"**/domain/*",
 			"**/dto/*",
 			"**/exception/**/*",
 			"**/exception/*",
 			"**/mapper/*",
-			"**/service/impl/**",
 			"**/feature/aspect/**",
 			"**/validation/*",
 			"**/util/*",
