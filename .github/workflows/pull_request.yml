@@ -1,4 +1,4 @@
-name: Build and Test Coverage
+name: Build and Tests Coverage
 
 on:
   pull_request:
